@@ -21,8 +21,7 @@
             <ul>
                 <li class="gif-item" v-for="gif in gifs" v-bind:key="gif.id">
                     <div style="margin:2px; background-color: black">
-                        <img v-if="imgLoaded == 25" v-cloak @load="handleLoad" v-bind:src="gif.images.fixed_height_small.url" alt="">
-                        <p v-else>{{imgLoaded}}</p>
+                        <img v-cloak @load="handleLoad" v-bind:src="gif.images.fixed_height_small.url" alt="">
                     </div>
                 </li>
             </ul>
