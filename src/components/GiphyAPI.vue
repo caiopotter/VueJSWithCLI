@@ -17,11 +17,28 @@
             </div>
         </div>
 
-        <div v-cloak>
+        <!-- <div v-show="!loaded">
+            <ul>
+                <li style="display:inline-block" v-for="gif in gifs" v-bind:key="gif.id">
+                    <div>
+                        <svg style="margin:2px;" v-bind:width="gif.images.fixed_height_small.width" v-bind:height="gif.images.fixed_height_small.height">
+                            <rect v-on:load="handleLoad" v-bind:width="gif.images.fixed_height_small.width" v-bind:height="gif.images.fixed_height_small.height" style="fill:rgb(0,0,255);stroke-width:1;stroke:rgb(0,0,0)" />  
+                        </svg>
+                    </div>
+                </li>
+            </ul>
+        </div> -->
+
+        <div>
             <ul>
                 <li class="gif-item" v-for="gif in gifs" v-bind:key="gif.id">
-                    <div style="margin:2px; background-color: black">
-                        <img v-cloak @load="handleLoad" v-bind:src="gif.images.fixed_height_small.url" alt="">
+                    
+                    <div v-bind:style="buildGifPlaceholder(gif)" v-if=true>
+                        <img style="position: absolute; z-index: 10;" v-cloak v-bind:src="gif.images.fixed_height_small.url" alt="">
+                 
+                    <svg style="z-index:-1" v-bind:width="gif.images.fixed_height_small.width" v-bind:height="gif.images.fixed_height_small.height">
+                    </svg>
+                        
                     </div>
                 </li>
             </ul>
@@ -42,11 +59,15 @@ export default {
         textoBusca: "",
         limit: 5,
         gifs: [],
-        imgLoaded: 0}
+        imgLoaded: 0,
+        loaded: false,
+        result: ""}
     },
     mounted() {
         axios.get("http://api.giphy.com/v1/gifs/trending?api_key=BnHDTmMLviwT2Jhowt3GNZsFATVXxR2V")
-        .then(response => {this.gifs = response.data.data})
+        .then(response => {
+            this.gifs = response.data.data;
+        });
     },
     updated(){
         console.log("updated");
@@ -57,6 +78,11 @@ export default {
             let texto = this.replaceSpaces(this.textoBusca);
             return "http://api.giphy.com/v1/gifs/search?q=" + texto + "&api_key=" + this.apikey + "&limit=" + this.limit;
         },
+        buildGifPlaceholder: function(gif){
+            this.result = "margin: 2px; width: " + 
+            gif.images.fixed_height_small.width + "; height: " + gif.images.fixed_height_small.height + "; background-color: black;";
+            return this.result;
+        },
         buscar: function(event){
             axios.get(this.buildURL())
             .then(response => {this.gifs = response.data.data})
@@ -65,11 +91,15 @@ export default {
             return string.replace(" ", "+");
         },
         handleLoad: function(todo){
+            todo.target.style.visibility = "visible";
+            this.loaded=false;
     	    this.imgLoaded++;
-            if(this.imgLoaded === 25) {
-      	    alert('all image loaded')	
-      }
-    }
+            if(this.imgLoaded === this.gifs.length) {
+              console.log('all image loaded')	
+              this.loaded=true;
+            }
+        },
+
             
     }
 }
@@ -86,6 +116,10 @@ export default {
 
     .gif-item{
         display: inline-block
+    }
+
+    .gif-placeholder{
+
     }
 
     .search {
